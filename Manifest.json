@@ -1,0 +1,25 @@
+{
+  "name": "La Antigua Cementera",
+  "short_name": "Cementera",
+  "description": "Control de acceso — La Antigua Cementera",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1b2e",
+  "theme_color": "#0d1b2e",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "crs_metalico.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "crs.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

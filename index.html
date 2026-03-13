@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Acceso — La Antigua Cementera</title>
+<meta name="theme-color" content="#0d1b2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cementera">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="crs_metalico.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul:       #0d1b2e;
+    --azul2:      #112240;
+    --azul3:      #1a3356;
+    --azul-borde: #1e3a5f;
+    --acento:     #2e7dd1;
+    --acento2:    #4a9eff;
+    --blanco:     #f0f4f8;
+    --gris:       #8fa3b8;
+    --negro:      #060e18;
+    --verde:      #22c55e;
+    --rojo:       #ef4444;
+    --dorado:     #c9a84c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Barlow', sans-serif;
+    color: var(--blanco);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Imagen de fondo con overlay azul oscuro */
+  .bg-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .bg-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('fondo.jpg') center center / cover no-repeat;
+    filter: brightness(0.35) saturate(0.4);
+  }
+
+  .bg-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg,
+        rgba(6,14,24,0.85) 0%,
+        rgba(13,27,46,0.75) 40%,
+        rgba(13,27,46,0.82) 100%);
+  }
+
+  /* Líneas decorativas industriales */
+  .bg-lines {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 80px,
+        rgba(46,125,209,0.03) 80px,
+        rgba(46,125,209,0.03) 81px
+      );
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(6,14,24,0.88);
+    border-bottom: 2px solid var(--dorado);
+    backdrop-filter: blur(16px);
+    padding: 0 40px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-escudo {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--dorado);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: rgba(201,168,76,0.08);
+    flex-shrink: 0;
+  }
+
+  .logo-escudo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+  }
+
+  .logo-texto h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--blanco);
+    line-height: 1;
+  }
+
+  .logo-texto span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--verde);
+  }
+
+  .status-dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--verde);
+    box-shadow: 0 0 8px var(--verde);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .btn-visitas {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--negro);
+    background: var(--dorado);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s;
+  }
+
+  .btn-visitas:hover {
+    background: #e0bc5a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,168,76,0.35);
+  }
+
+  /* ── CONTAINER ──────────────────────────────── */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 48px auto;
+    padding: 0 20px 60px;
+  }
+
+  .page-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .page-eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--dorado);
+  }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    letter-spacing: 3px;
+    color: var(--blanco);
+    line-height: 1;
+    margin-bottom: 32px;
+  }
+
+  /* ── FORM CARD ───────────────────────────────── */
+  .form-card {
+    background: rgba(13,27,46,0.82);
+    border: 1px solid var(--azul-borde);
+    border-top: 3px solid var(--dorado);
+    border-radius: 6px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    animation: slideUp 0.5s cubic-bezier(.16,1,.3,1);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TIPO SELECTOR ───────────────────────────── */
+  .tipo-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--azul-borde);
+  }
+
+  .tipo-btn {
+    position: relative;
+  }
+
+  .tipo-btn input[type="radio"] {
+    position: absolute; opacity: 0; width: 0; height: 0;
+  }
+
+  .tipo-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 28px;
+    cursor: pointer;
+    transition: all 0.25s;
+    border-right: 1px solid var(--azul-borde);
+    background: rgba(17,34,64,0.6);
+  }
+
+  .tipo-btn:last-child .tipo-label { border-right: none; }
+
+  .tipo-icono {
+    width: 40px; height: 40px;
+    border-radius: 3px;
+    border: 1px solid var(--azul-borde);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: all 0.25s;
+    background: rgba(46,125,209,0.06);
+  }
+
+  .tipo-label .tipo-nombre {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--gris);
+    text-transform: uppercase;
+    display: block;
+    transition: color 0.25s;
+  }
+
+  .tipo-label .tipo-desc {
+    font-size: 12px;
+    color: rgba(143,163,184,0.6);
+    margin-top: 2px;
+    display: block;
+  }
+
+  .tipo-btn input:checked + .tipo-label {
+    background: rgba(46,125,209,0.12);
+    border-bottom: 2px solid var(--acento);
+  }
+
+  .tipo-btn input:checked + .tipo-label .tipo-nombre {
+    color: var(--acento2);
+  }
+
+  .tipo-btn input:checked + .tipo-label .tipo-icono {
+    border-color: var(--acento);
+    background: rgba(46,125,209,0.15);
+  }
+
+  .tipo-label:hover { background: rgba(46,125,209,0.07); }
+
+  /* ── FORM BODY ───────────────────────────────── */
+  .form-body {
+    padding: 30px 36px 36px;
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin: 28px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--azul-borde), transparent);
+  }
+
+  .section-title:first-child { margin-top: 0; }
+
+  .field-group { display: grid; gap: 14px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea {
+    background: rgba(6,14,24,0.7);
+    border: 1px solid var(--azul-borde);
+    border-radius: 3px;
+    padding: 11px 14px;
+    color: var(--blanco);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  input[type="text"]::placeholder,
+  textarea::placeholder { color: rgba(143,163,184,0.35); }
+
+  input:focus, textarea:focus {
+    border-color: var(--acento);
+    background: rgba(46,125,209,0.06);
+    box-shadow: 0 0 0 3px rgba(46,125,209,0.1);
+  }
+
+  textarea { resize: vertical; min-height: 76px; }
+
+  /* Colores de date/time picker */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6) sepia(1) saturate(2) hue-rotate(190deg);
+    cursor: pointer;
+  }
+
+  /* ── INE ─────────────────────────────────────── */
+  .ine-field {
+    border: 1px dashed var(--azul-borde);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.25s;
+    cursor: pointer;
+  }
+
+  .ine-field:hover { border-color: var(--acento); }
+
+  .ine-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    gap: 8px;
+    min-height: 110px;
+    transition: background 0.25s;
+  }
+
+  .ine-placeholder:hover { background: rgba(46,125,209,0.05); }
+
+  .ine-icono {
+    width: 42px; height: 42px;
+    border: 1px solid var(--azul-borde);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 4px;
+    background: rgba(46,125,209,0.08);
+  }
+
+  .ine-placeholder .ine-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--acento2);
+  }
+
+  .ine-placeholder small {
+    font-size: 11px;
+    color: var(--gris);
+    opacity: 0.6;
+  }
+
+  .ine-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: none;
+    border-radius: 2px;
+  }
+
+  input[type="file"] { display: none; }
+
+  /* ── VEHICULO ────────────────────────────────── */
+  .vehicle-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    background: rgba(6,14,24,0.5);
+    border: 1px solid var(--azul-borde);
+    border-radius: 3px;
+  }
+
+  .vehicle-toggle .veh-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    color: var(--gris);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .toggle-switch { display: flex; gap: 6px; }
+
+  .toggle-opt { cursor: pointer; }
+  .toggle-opt input { display: none; }
+
+  .toggle-pill {
+    padding: 5px 18px;
+    border-radius: 2px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid var(--azul-borde);
+    color: var(--gris);
+    transition: all 0.2s;
+    display: block;
+  }
+
+  .toggle-opt input:checked + .pill-si { background: var(--verde); border-color: var(--verde); color: #fff; }
+  .toggle-opt input:checked + .pill-no { background: rgba(239,68,68,0.7); border-color: var(--rojo); color: #fff; }
+
+  .vehicle-fields {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .vehicle-fields.show { display: grid; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BTN SUBMIT ──────────────────────────────── */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--acento);
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.05);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+
+  .btn-submit:hover {
+    background: var(--acento2);
+    box-shadow: 0 8px 28px rgba(46,125,209,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-submit:hover::before { transform: translateX(0); }
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── UTILS ───────────────────────────────────── */
+  .hidden { display: none !important; }
+
+  /* ── DIVIDER DECORATIVO ──────────────────────── */
+  .deco-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 36px;
+    padding: 14px 0;
+    border-top: 1px solid var(--azul-borde);
+  }
+
+  .deco-divider span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(143,163,184,0.4);
+    white-space: nowrap;
+  }
+
+  .deco-divider::before, .deco-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--azul-borde));
+  }
+
+  .deco-divider::after {
+    background: linear-gradient(270deg, transparent, var(--azul-borde));
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────── */
+  @media (max-width: 600px) {
+    .header { padding: 0 18px; }
+    .status-dot { display: none; }
+    .page-title { font-size: 34px; }
+    .tipo-selector { grid-template-columns: 1fr; }
+    .tipo-label { border-right: none !important; border-bottom: 1px solid var(--azul-borde); }
+    .form-body { padding: 22px 20px 28px; }
+    .field-row { grid-template-columns: 1fr; }
+    .vehicle-fields { grid-template-columns: 1fr; }
+    .deco-divider { margin: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-wrap"></div>
+<div class="bg-lines"></div>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-escudo"><img src="crs_metalico.png" alt="Logo La Antigua Cementera"></div>
+    <div class="logo-texto">
+      <h1>La Antigua Cementera</h1>
+      <span>Control de Acceso · Fraccionamiento</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot">Sistema activo</div>
+    <a href="visitas.php" class="btn-visitas">
+      📋 Ver Visitas
+    </a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="page-eyebrow">Registro de ingreso</div>
+  <h2 class="page-title">Control de Acceso</h2>
+
+  <div class="form-card">
+
+    <!-- Selector de tipo -->
+    <div class="tipo-selector">
+      <label class="tipo-btn">
+        <input type="radio" name="tipo" value="visita" id="tipoVisita" required>
+        <div class="tipo-label">
+          <div class="tipo-icono">👤</div>
+          <div>
+            <span class="tipo-nombre">Visita</span>
+            <span class="tipo-desc">Persona conocida</span>
+          </div>
+        </div>
+      </label>
+      <label class="tipo-btn">
+        <input type="radio" name="tipo" value="proveedor" id="tipoProveedor">
+        <div class="tipo-label">
+          <div class="tipo-icono">🔧</div>
+          <div>
+            <span class="tipo-nombre">Proveedor</span>
+            <span class="tipo-desc">Empresa / Servicio</span>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <form action="guardar.php" method="POST" enctype="multipart/form-data" id="mainForm">
+      <input type="hidden" name="tipo" id="tipoHidden" value="">
+
+      <div class="form-body">
+
+        <!-- ─── SECCIÓN VISITA ─── -->
+        <div id="seccionVisita" class="hidden">
+
+          <div class="section-title">Datos de la visita</div>
+
+          <div class="field-group">
+            <div class="field">
+              <label>Nombre completo</label>
+              <input type="text" name="nombre" placeholder="Ej. María González López">
+            </div>
+
+            <div class="field">
+              <label>Fotografía de INE</label>
+              <div class="ine-field" onclick="document.getElementById('ine_visita_file').click()">
+                <input type="file" id="ine_visita_file" name="ine_foto" accept="image/*" capture="environment"
+                       onchange="previewINE(this,'inePreview_visita','inePlaceholder_visita')">
+                <div class="ine-placeholder" id="inePlaceholder_visita">
+                  <div class="ine-icono">🪪</div>
+                  <span class="ine-label">Capturar / Subir INE</span>
+                  <small>Toca para tomar foto o seleccionar imagen</small>
+                </div>
+                <img id="inePreview_visita" class="ine-preview" src="" alt="INE">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Fecha</label>
+                <input type="date" name="fecha" id="v_fecha">
+              </div>
+              <div class="field">
+                <label>Hora de ingreso</label>
+                <input type="time" name="hora_ingreso" id="v_hora">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Motivo de visita</label>
+              <textarea name="motivo" placeholder="Describe el motivo de la visita..." rows="3"></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Casa que visita</label>
+                <input type="text" name="casa_visita" placeholder="Ej. Casa 23, Calle Roble">
+              </div>
+              <div class="field">
+                <label>Nombre del residente</label>
+                <input type="text" name="residente" placeholder="Nombre del residente">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Vehículo</div>
+
+          <div class="vehicle-toggle">
+            <span class="veh-label">¿Ingresa con vehículo?</span>
+            <div class="toggle-switch">
+              <label class="toggle-opt">
+                <input type="radio" name="vehiculo_v" value="si" onchange="toggleVehiculo('vehiculoV', true)">
+                <span class="toggle-pill pill-si">Sí</span>
+              </label>
+              <label class="toggle-opt">
+                <input type="radio" name="vehiculo_v" value="no" checked onchange="toggleVehiculo('vehiculoV', false)">
+                <span class="toggle-pill pill-no">No</span>
+              </label>
+            </div>
+          </div>
+          <input type="hidden" name="vehiculo" id="vehiculo_v_val" value="no">
+
+          <div class="vehicle-fields" id="vehiculoV">
+            <div class="field">
+              <label>Placas</label>
+              <input type="text" name="placas" placeholder="AAA-000-AA" style="text-transform:uppercase">
+            </div>
+            <div class="field">
+              <label>Modelo del vehículo</label>
+              <input type="text" name="modelo_vehiculo" placeholder="Ej. Toyota Corolla 2020">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ─── SECCIÓN PROVEEDOR ─── -->
+        <div id="seccionProveedor" class="hidden">
+
+          <div class="section-title">Datos del proveedor</div>
+
+          <div class="field-group">
+            <div class="field">
+              <label>Empresa</label>
+              <input type="text" name="empresa" placeholder="Nombre de la empresa">
+            </div>
+
+            <div class="field">
+              <label>Nombre del proveedor</label>
+              <input type="text" name="nombre_prov" placeholder="Nombre completo">
+            </div>
+
+            <div class="field">
+              <label>Fotografía de INE</label>
+              <div class="ine-field" onclick="document.getElementById('ine_prov_file').click()">
+                <input type="file" id="ine_prov_file" name="ine_foto_prov" accept="image/*" capture="environment"
+                       onchange="previewINE(this,'inePreview_prov','inePlaceholder_prov')">
+                <div class="ine-placeholder" id="inePlaceholder_prov">
+                  <div class="ine-icono">🪪</div>
+                  <span class="ine-label">Capturar / Subir INE</span>
+                  <small>Toca para tomar foto o seleccionar imagen</small>
+                </div>
+                <img id="inePreview_prov" class="ine-preview" src="" alt="INE">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Fecha</label>
+                <input type="date" name="fecha_prov" id="p_fecha">
+              </div>
+              <div class="field">
+                <label>Hora de ingreso</label>
+                <input type="time" name="hora_ingreso_prov" id="p_hora">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Motivo / Servicio</label>
+              <textarea name="motivo_prov" placeholder="Describe el servicio a realizar..." rows="3"></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Casa que visita</label>
+                <input type="text" name="casa_visita_prov" placeholder="Ej. Casa 23, Calle Roble">
+              </div>
+              <div class="field">
+                <label>Nombre del residente</label>
+                <input type="text" name="residente_prov" placeholder="Nombre del residente">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Vehículo</div>
+
+          <div class="vehicle-toggle">
+            <span class="veh-label">¿Ingresa con vehículo?</span>
+            <div class="toggle-switch">
+              <label class="toggle-opt">
+                <input type="radio" name="vehiculo_p" value="si" onchange="toggleVehiculo('vehiculoP', true)">
+                <span class="toggle-pill pill-si">Sí</span>
+              </label>
+              <label class="toggle-opt">
+                <input type="radio" name="vehiculo_p" value="no" checked onchange="toggleVehiculo('vehiculoP', false)">
+                <span class="toggle-pill pill-no">No</span>
+              </label>
+            </div>
+          </div>
+          <input type="hidden" name="vehiculo_prov" id="vehiculo_p_val" value="no">
+
+          <div class="vehicle-fields" id="vehiculoP">
+            <div class="field">
+              <label>Placas</label>
+              <input type="text" name="placas_prov" placeholder="AAA-000-AA" style="text-transform:uppercase">
+            </div>
+            <div class="field">
+              <label>Modelo del vehículo</label>
+              <input type="text" name="modelo_vehiculo_prov" placeholder="Ej. Ford Transit 2022">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Botón submit -->
+        <div id="btnZone" class="hidden">
+          <button type="submit" class="btn-submit">
+            Registrar Acceso
+          </button>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  // Fecha y hora actuales
+  const now     = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const timeStr = now.toTimeString().slice(0,5);
+  document.querySelectorAll('input[type="date"]').forEach(i => i.value = dateStr);
+  document.querySelectorAll('input[type="time"]').forEach(i => i.value = timeStr);
+
+  // Selector tipo
+  document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      document.getElementById('seccionVisita').classList.add('hidden');
+      document.getElementById('seccionProveedor').classList.add('hidden');
+      document.getElementById('tipoHidden').value = this.value;
+
+      if (this.value === 'visita') {
+        document.getElementById('seccionVisita').classList.remove('hidden');
+      } else {
+        document.getElementById('seccionProveedor').classList.remove('hidden');
+      }
+      document.getElementById('btnZone').classList.remove('hidden');
+    });
+  });
+
+  // Toggle vehículo
+  function toggleVehiculo(id, show) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show', show);
+    const valId = id === 'vehiculoV' ? 'vehiculo_v_val' : 'vehiculo_p_val';
+    document.getElementById(valId).value = show ? 'si' : 'no';
+  }
+
+  // Preview INE
+  function previewINE(input, previewId, placeholderId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview     = document.getElementById(previewId);
+      const placeholder = document.getElementById(placeholderId);
+      preview.src          = e.target.result;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  // Registro del Service Worker (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .catch(err => console.warn('SW no registrado:', err));
+    });
+  }
+</script>
+
+</body>
+</html>
